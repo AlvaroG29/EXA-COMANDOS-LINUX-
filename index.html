@@ -1,0 +1,473 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Examen de comandos Linux - Con Ranking</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap">
+<style>
+:root {
+  --bg: #eef1ef;
+  --surface: #fbfcfb;
+  --ink: #17201d;
+  --muted: #5b6a64;
+  --line: #d2dad6;
+  --accent: #0b6b57;
+  --accent-ink: #ffffff;
+  --accent-soft: #dcebe6;
+  --ok: #1a7f4b;
+  --ok-soft: #dff1e6;
+  --bad: #b42318;
+  --bad-soft: #f8e1de;
+  --gold: #d97706;
+  --gold-soft: #fef3c7;
+  --term: #131c19;
+  --term-ink: #dfe9e4;
+  --term-prompt: #5fd3a8;
+  --font-body: "Figtree", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0f1513; --surface: #161e1b; --ink: #e5ece8; --muted: #92a39b; --line: #28352f;
+    --accent: #3ecf9e; --accent-ink: #07231b; --accent-soft: #1c3029;
+    --ok: #4cc38a; --ok-soft: #173326; --bad: #ff8179; --bad-soft: #3b1c1a;
+    --gold: #fbbf24; --gold-soft: #3a2e10;
+    --term: #0a100e; --term-ink: #dfe9e4; --term-prompt: #5fd3a8;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #0f1513; --surface: #161e1b; --ink: #e5ece8; --muted: #92a39b; --line: #28352f;
+  --accent: #3ecf9e; --accent-ink: #07231b; --accent-soft: #1c3029;
+  --ok: #4cc38a; --ok-soft: #173326; --bad: #ff8179; --bad-soft: #3b1c1a;
+  --gold: #fbbf24; --gold-soft: #3a2e10;
+  --term: #0a100e; --term-ink: #dfe9e4; --term-prompt: #5fd3a8;
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+body {
+  background: var(--bg); color: var(--ink); font-family: var(--font-body); font-size: 16px; line-height: 1.5;
+  padding-block: 28px 56px;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+}
+main { max-width: 720px; margin: 0 auto; display: flex; flex-direction: column; gap: 20px; min-width: 0; }
+h1 { font-size: clamp(1.6rem, 5vw, 2.1rem); line-height: 1.15; margin: 0; letter-spacing: -0.01em; text-wrap: balance; }
+h2 { font-size: 1.1rem; margin: 0; }
+p { margin: 0; }
+.lead { color: var(--muted); max-width: 60ch; }
+.card { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 20px; display: flex; flex-direction: column; gap: 16px; min-width: 0; }
+.label { font-size: 0.78rem; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; color: var(--muted); }
+.row { display: flex; flex-wrap: wrap; gap: 8px; }
+button { font: inherit; color: inherit; cursor: pointer; }
+button:focus-visible, input:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
+.chip { border: 1px solid var(--line); background: var(--bg); padding: 8px 14px; border-radius: 999px; font-weight: 500; font-size: 0.95rem; }
+.chip[aria-pressed="true"] { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); }
+.btn { border: 1px solid var(--accent); background: var(--accent); color: var(--accent-ink); padding: 12px 22px; border-radius: 8px; font-weight: 600; }
+.btn.ghost { background: transparent; color: var(--accent); }
+.btn:disabled { opacity: 0.45; cursor: not-allowed; }
+.top { display: flex; justify-content: space-between; align-items: center; gap: 12px; font-size: 0.9rem; color: var(--muted); }
+.bar { height: 6px; background: var(--line); border-radius: 99px; overflow: hidden; }
+.bar > i { display: block; height: 100%; background: var(--accent); transition: width 0.25s; }
+.scenario { font-size: 1.2rem; font-weight: 600; line-height: 1.35; text-wrap: pretty; }
+.opts { display: grid; gap: 10px; }
+.opt { text-align: left; background: var(--term); color: var(--term-ink); border: 2px solid transparent; border-radius: 8px; padding: 14px 16px; font-family: var(--font-mono); font-size: 0.95rem; display: flex; gap: 10px; overflow-wrap: anywhere; min-width: 0; }
+.opt::before { content: "$"; color: var(--term-prompt); flex: none; }
+.opt:hover:not(:disabled) { border-color: var(--term-prompt); }
+.opt:disabled { cursor: default; }
+.opt.right { border-color: var(--ok); background: var(--ok-soft); color: var(--ink); }
+.opt.right::before { color: var(--ok); }
+.opt.wrong { border-color: var(--bad); background: var(--bad-soft); color: var(--ink); }
+.opt.wrong::before { color: var(--bad); }
+.term { display: flex; align-items: center; gap: 10px; background: var(--term); border-radius: 8px; padding: 6px 14px; border: 2px solid transparent; }
+.term:focus-within { border-color: var(--term-prompt); }
+.term b { color: var(--term-prompt); font-family: var(--font-mono); }
+.term input { flex: 1; min-width: 0; background: transparent; border: 0; color: var(--term-ink); font-family: var(--font-mono); font-size: 1rem; padding: 12px 0; outline: none; }
+.term.right { border-color: var(--ok); }
+.term.wrong { border-color: var(--bad); }
+.fb { border-radius: 8px; padding: 14px 16px; display: flex; flex-direction: column; gap: 8px; }
+.fb.ok { background: var(--ok-soft); }
+.fb.no { background: var(--bad-soft); }
+.fb code { font-family: var(--font-mono); background: var(--term); color: var(--term-ink); padding: 3px 8px; border-radius: 5px; overflow-wrap: anywhere; display: inline-block; }
+.actions { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; justify-content: space-between; }
+.hint { color: var(--muted); font-family: var(--font-mono); font-size: 0.92rem; }
+.score { font-size: clamp(2.4rem, 9vw, 3.4rem); font-weight: 700; line-height: 1; font-variant-numeric: tabular-nums; }
+.sec { display: grid; grid-template-columns: 110px 1fr auto; gap: 12px; align-items: center; font-size: 0.92rem; }
+.sec .bar { height: 8px; }
+.sec span:last-child { font-variant-numeric: tabular-nums; color: var(--muted); }
+.fails { display: grid; gap: 10px; }
+.fail { border: 1px solid var(--line); border-radius: 8px; padding: 12px 14px; display: flex; flex-direction: column; gap: 6px; min-width: 0; }
+.fail code { font-family: var(--font-mono); background: var(--term); color: var(--term-ink); padding: 3px 8px; border-radius: 5px; align-self: flex-start; overflow-wrap: anywhere; }
+.fail small { color: var(--muted); }
+.count { color: var(--muted); font-size: 0.9rem; }
+
+/* Estilos de Usuario e Input */
+.user-box { display: flex; gap: 10px; align-items: center; }
+.user-input { background: var(--bg); border: 1px solid var(--line); padding: 10px 14px; border-radius: 8px; color: var(--ink); font-weight: 600; font-size: 1rem; flex: 1; }
+
+/* Estilos de Tabla del Ranking */
+.leaderboard { display: flex; flex-direction: column; gap: 8px; }
+.rank-item { display: flex; align-items: center; justify-content: space-between; padding: 12px 16px; border-radius: 8px; border: 1px solid var(--line); background: var(--bg); font-weight: 600; }
+.rank-item.top-1 { background: var(--gold-soft); border-color: var(--gold); color: var(--ink); font-size: 1.05rem; }
+.rank-item.worst { background: var(--bad-soft); border-color: var(--bad); }
+.rank-item .badge { font-size: 0.75rem; text-transform: uppercase; padding: 2px 8px; border-radius: 4px; font-weight: 700; }
+.rank-item.top-1 .badge { background: var(--gold); color: #000; }
+.rank-item.worst .badge { background: var(--bad); color: #fff; }
+.rank-pos { width: 30px; font-weight: 700; color: var(--muted); }
+.rank-name { flex: 1; display: flex; align-items: center; gap: 8px; }
+.rank-score { font-family: var(--font-mono); font-weight: 700; }
+
+@media (max-width: 480px) { .sec { grid-template-columns: 84px 1fr auto; } .card { padding: 16px; } }
+@media (prefers-reduced-motion: reduce) { .bar > i { transition: none; } }
+</style>
+</head>
+<body>
+<main id="app"></main>
+
+<script>
+/* ---------- Banco de preguntas ---------- */
+var DATA = [
+ ["Archivos","Crea un archivo vacío llamado archivo1.txt.","touch archivo1.txt",["mkdir archivo1.txt","cat archivo1.txt","echo archivo1.txt"],"touch crea un archivo vacío. mkdir crea carpetas."],
+ ["Archivos","Quieres ver qué archivos hay en la carpeta actual.","ls",["pwd","cd","cat"],"ls (list) lista el contenido del directorio."],
+ ["Archivos","Lista los archivos con detalle: permisos, dueño, tamaño y fecha.","ls -l",["ls -a","ls -r","ps -l"],"-l significa formato largo (long)."],
+ ["Archivos","Escribe el texto Hola Ubuntu Server dentro de archivo1.txt, reemplazando su contenido.","echo \"Hola Ubuntu Server\" > archivo1.txt",["echo \"Hola Ubuntu Server\" >> archivo1.txt","cat \"Hola Ubuntu Server\" > archivo1.txt","touch \"Hola Ubuntu Server\" archivo1.txt"],"> redirige la salida al archivo y lo sobrescribe. >> agrega al final sin borrar."],
+ ["Archivos","Muestra en pantalla el contenido de archivo1.txt.","cat archivo1.txt",["ls archivo1.txt","echo archivo1.txt","touch archivo1.txt"],"cat imprime el contenido de un archivo."],
+ ["Archivos","Copia archivo1.txt con el nombre copia_archivo.txt.","cp archivo1.txt copia_archivo.txt",["mv archivo1.txt copia_archivo.txt","cp copia_archivo.txt archivo1.txt","copy archivo1.txt copia_archivo.txt"],"cp origen destino. El orden es siempre origen primero."],
+ ["Archivos","Mueve copia_archivo.txt a la carpeta /tmp/.","mv copia_archivo.txt /tmp/",["cp copia_archivo.txt /tmp/","mv /tmp/ copia_archivo.txt","rm copia_archivo.txt /tmp/"],"mv origen destino. A diferencia de cp, el original deja de existir en su lugar.",{alt:["mv copia_archivo.txt /tmp"]}],
+ ["Archivos","Renombra archivo1.txt a practicas_linux.txt.","mv archivo1.txt practicas_linux.txt",["cp archivo1.txt practicas_linux.txt","touch practicas_linux.txt","ren archivo1.txt practicas_linux.txt"],"En Linux, renombrar es mover al mismo lugar con otro nombre."],
+ ["Archivos","Elimina el archivo practicas_linux.txt.","rm practicas_linux.txt",["rmdir practicas_linux.txt","mv practicas_linux.txt","del practicas_linux.txt"],"rm (remove) borra archivos. rmdir solo borra carpetas vacías."],
+ ["Archivos","Escribe Archivo importante dentro de Documentos/datos.txt (reemplazando el contenido).","echo \"Archivo importante\" > Documentos/datos.txt",["echo \"Archivo importante\" >> Documentos/datos.txt","cat \"Archivo importante\" > Documentos/datos.txt","touch Documentos/datos.txt \"Archivo importante\""],"Misma idea que antes: echo + > + ruta del archivo."],
+ ["Archivos","Muestra el contenido de Empresa/Documentos/info.txt.","cat Empresa/Documentos/info.txt",["ls Empresa/Documentos/info.txt","tree Empresa/Documentos/info.txt","cd Empresa/Documentos/info.txt"],"cat acepta rutas relativas como esta."],
+ ["Archivos","Muestra con detalle (tamaño, fecha, permisos) solo el archivo respaldo.tar.gz.","ls -l respaldo.tar.gz",["ls respaldo.tar.gz -a","cat -l respaldo.tar.gz","tree respaldo.tar.gz"],"ls -l seguido del nombre muestra los detalles de ese archivo."],
+
+ ["Directorios","Crea la carpeta Practicas.","mkdir Practicas",["touch Practicas","cd Practicas","mk Practicas"],"mkdir (make directory) crea carpetas."],
+ ["Directorios","Con un solo comando, crea las carpetas Documentos, Imagenes y Respaldos (una al lado de la otra).","mkdir Documentos Imagenes Respaldos",["mkdir -p Documentos/Imagenes/Respaldos","mkdir Documentos,Imagenes,Respaldos","touch Documentos Imagenes Respaldos"],"mkdir acepta varios nombres separados por espacios."],
+ ["Directorios","Crea la ruta Empresa/AreaTI/Servidores de una vez, aunque Empresa no exista.","mkdir -p Empresa/AreaTI/Servidores",["mkdir Empresa/AreaTI/Servidores","mkdir -r Empresa/AreaTI/Servidores","mkdir Empresa AreaTI Servidores"],"-p (parents) crea también las carpetas intermedias."],
+ ["Directorios","Crea Empresa con dos subcarpetas, Documentos y Respaldos, en un solo comando.","mkdir -p Empresa/{Documentos,Respaldos}",["mkdir Empresa/Documentos,Respaldos","mkdir -r Empresa/{Documentos,Respaldos}","mkdir Empresa Documentos Respaldos"],"Las llaves {a,b} expanden a varias rutas. Con -p se crea Empresa si falta."],
+ ["Directorios","Instala el programa tree.","sudo apt install tree",["apt install tree","sudo install tree","sudo apt get tree"],"apt instala paquetes y necesita sudo. Con -y no pide confirmación.",{alt:["sudo apt install tree -y","sudo apt install -y tree"]}],
+ ["Directorios","Muestra la estructura de carpetas en forma de árbol.","tree",["ls -r","pwd","dir"],"tree dibuja el árbol de directorios y archivos."],
+ ["Directorios","Verifica en forma de árbol la estructura de la carpeta Respaldos.","tree Respaldos",["cd Respaldos","cat Respaldos","pwd Respaldos"],"tree acepta una carpeta como argumento."],
+ ["Directorios","Entra a la carpeta Empresa.","cd Empresa",["ls Empresa","mkdir Empresa","cd .."],"cd (change directory) cambia de carpeta."],
+ ["Directorios","Regresa un nivel, a la carpeta padre.","cd ..",["cd ~","cd .","cd /"],".. significa la carpeta padre. . es la actual."],
+ ["Directorios","Ve a tu directorio personal.","cd ~",["cd ..","cd /","pwd ~"],"~ es tu carpeta personal. cd solo, sin nada, también funciona.",{alt:["cd"]}],
+ ["Directorios","Muestra la ruta completa de la carpeta donde estás.","pwd",["ls","cd","tree"],"pwd (print working directory) imprime tu ubicación."],
+
+ ["Respaldos","Copia la carpeta completa Documentos (con su contenido) dentro de Respaldos.","cp -r Documentos Respaldos",["cp Documentos Respaldos","mv -r Documentos Respaldos","cp -p Documentos Respaldos"],"-r (recursivo) es obligatorio para copiar carpetas."],
+ ["Respaldos","Crea un respaldo comprimido de Documentos llamado respaldo.tar.gz.","tar -czvf respaldo.tar.gz Documentos",["tar -xzvf respaldo.tar.gz Documentos","tar -tzvf respaldo.tar.gz Documentos","tar -czvf Documentos respaldo.tar.gz"],"c=crear, z=comprimir, v=mostrar proceso, f=nombre del archivo. El nombre del respaldo va primero.",{alt:["tar czvf respaldo.tar.gz Documentos"]}],
+ ["Respaldos","Recupera (extrae) el respaldo respaldo.tar.gz.","tar -xzvf respaldo.tar.gz",["tar -czvf respaldo.tar.gz","tar -tzvf respaldo.tar.gz","untar respaldo.tar.gz"],"x = extraer. Es la única letra que cambia respecto a crear.",{alt:["tar xzvf respaldo.tar.gz"]}],
+ ["Respaldos","Mira qué contiene respaldo.tar.gz sin extraerlo.","tar -tzvf respaldo.tar.gz",["tar -xzvf respaldo.tar.gz","cat respaldo.tar.gz","ls respaldo.tar.gz"],"t = listar el contenido.",{alt:["tar tzvf respaldo.tar.gz"]}],
+ ["Respaldos","Sincroniza Documentos/ hacia Respaldos/ copiando solo lo que cambió (modo archivo y detallado).","rsync -av Documentos/ Respaldos/",["cp -av Documentos/ Respaldos/","rsync -x Documentos/ Respaldos/","sync -av Documentos/ Respaldos/"],"rsync -av: a conserva atributos y v muestra lo que hace. Muy usado en servidores.",{alt:["sudo rsync -av Documentos/ Respaldos/"]}],
+ ["Respaldos","Borra la carpeta Documentos con todo su contenido, para probar la recuperación del respaldo.","rm -r Documentos",["rm Documentos","rmdir -r Documentos","del -r Documentos"],"rm -r borra carpetas recursivamente. Úsalo con cuidado.",{alt:["rm -rf Documentos"]}],
+
+ ["Tareas","Ejecuta sleep 300 en segundo plano.","sleep 300 &",["sleep 300","bg sleep 300","sleep & 300"],"& al final manda el comando al fondo y te devuelve la terminal.",{alt:["sleep 300&"]}],
+ ["Tareas","Lista las tareas en segundo plano de tu terminal.","jobs",["ps","top","tasks"],"jobs muestra las tareas de esta sesión con su número [1], [2]."],
+ ["Tareas","Trae la tarea número 1 al primer plano.","fg %1",["bg %1","jobs %1","kill %1"],"fg (foreground) la trae al frente."],
+ ["Tareas","Reenvía la tarea 1, que está pausada, para que siga en segundo plano.","bg %1",["fg %1","jobs %1","&1"],"bg (background) la reanuda al fondo."],
+ ["Tareas","¿Qué combinación de teclas pausa la tarea que está en primer plano?","Ctrl+Z",["Ctrl+C","Ctrl+D","Ctrl+X"],"Ctrl+Z pausa. Ctrl+C la cancela. Después usas bg o fg.",{ci:true,alt:["ctrl z","control+z"]}],
+
+ ["Procesos","Ver solo los procesos de tu terminal actual.","ps",["jobs","top","pidof"],"ps sin opciones muestra pocos procesos."],
+ ["Procesos","Ver todos los procesos del sistema, de todos los usuarios y con detalle.","ps aux",["ps","jobs","ps -l"],"a=todos los usuarios, u=formato con usuario, x=incluye los sin terminal.",{alt:["ps -aux"]}],
+ ["Procesos","Filtra la lista de procesos para ver solo los que contienen la palabra ssh.","ps aux | grep ssh",["ps aux > ssh","grep ssh ps aux","ps ssh"],"La barra | pasa la salida de un comando al siguiente. grep filtra líneas.",{alt:["ps -aux | grep ssh"]}],
+ ["Procesos","Abre el monitor de procesos en tiempo real que ya viene instalado (se sale con q).","top",["ps aux","jobs","pidof"],"top actualiza la lista de procesos continuamente."],
+ ["Procesos","Instala el monitor mejorado htop.","sudo apt install htop",["sudo apt install top","apt htop","sudo install htop"],"Igual que cualquier paquete: sudo apt install nombre.",{alt:["sudo apt install htop -y","sudo apt install -y htop"]}],
+ ["Procesos","Abre el monitor mejorado que acabas de instalar.","htop",["top","ps aux","jobs"],"htop es una versión más cómoda de top."],
+ ["Procesos","Obtén automáticamente el PID del proceso sshd.","pidof sshd",["ps sshd","pid sshd","kill sshd"],"pidof nombre devuelve el número de PID del proceso."],
+ ["Procesos","Termina de forma normal el proceso con PID 1450.","kill 1450",["kill -9 1450","pidof 1450","stop 1450"],"kill envía la señal de terminar. Usa el número real del PID."],
+ ["Procesos","El proceso 1450 no responde. Fuerza su cierre.","kill -9 1450",["kill 1450","kill -1 1450","kill -f 1450"],"-9 envía la señal SIGKILL que no se puede ignorar."],
+
+ ["Servicios","Consulta el estado del servicio ssh.","systemctl status ssh",["systemctl list ssh","systemctl check ssh","status ssh"],"status muestra si está activo (active running) o detenido. Sal con q."],
+ ["Servicios","Inicia el servicio ssh ahora.","sudo systemctl start ssh",["sudo systemctl enable ssh","sudo systemctl run ssh","systemctl start ssh"],"start lo inicia ahora. Requiere sudo."],
+ ["Servicios","Detén el servicio ssh ahora.","sudo systemctl stop ssh",["sudo systemctl disable ssh","sudo systemctl pause ssh","sudo kill ssh"],"stop lo detiene ahora, pero no cambia si arranca al encender."],
+ ["Servicios","Reinicia el servicio ssh.","sudo systemctl restart ssh",["sudo systemctl reboot ssh","sudo systemctl start ssh","sudo systemctl reload-all ssh"],"restart = stop + start."],
+ ["Servicios","Haz que ssh arranque automáticamente cuando se encienda el sistema.","sudo systemctl enable ssh",["sudo systemctl start ssh","sudo systemctl auto ssh","sudo systemctl boot ssh"],"enable controla el arranque automático."],
+ ["Servicios","Evita que ssh arranque automáticamente al encender el sistema.","sudo systemctl disable ssh",["sudo systemctl stop ssh","sudo systemctl remove ssh","sudo systemctl off ssh"],"disable quita el arranque automático (no lo detiene si ya corre)."],
+ ["Servicios","Lista todos los servicios del sistema.","systemctl list-units --type=service",["systemctl list services","systemctl status --all","ps aux --type=service"],"list-units con --type=service filtra solo los servicios."],
+ ["Servicios","Habilita ssh y además inícialo ahora, en un solo comando.","sudo systemctl enable --now ssh",["sudo systemctl restart --enable ssh","sudo systemctl start --enable ssh","sudo systemctl enable ssh --stop"],"--now combina enable con start."],
+ ["Servicios","Instala el servidor SSH (openssh-server) sin que pida confirmación.","sudo apt install openssh-server -y",["apt install openssh-server","sudo apt install ssh-server -y","sudo systemctl install openssh-server"],"-y responde sí automáticamente.",{alt:["sudo apt install -y openssh-server"]}],
+
+ ["Registros","Ver los registros del sistema.","journalctl",["journal","cat journalctl","systemctl log"],"journalctl lee el registro (journal) de systemd."],
+ ["Registros","Ver solo los últimos 20 eventos del registro.","journalctl -n 20",["journalctl -f 20","journalctl -p 20","journalctl -u 20"],"-n es el número de líneas."],
+ ["Registros","Seguir los registros en tiempo real (como tail -f).","journalctl -f",["journalctl -n","journalctl -u","journalctl -p"],"-f = follow. Se detiene con Ctrl+C."],
+ ["Registros","Ver los registros solo del servicio ssh.","journalctl -u ssh",["journalctl ssh","journalctl -s ssh","journalctl -n ssh"],"-u = unit (unidad o servicio)."],
+ ["Registros","Ver solo los errores del sistema.","journalctl -p err",["journalctl -e","journalctl -err","journalctl -f err"],"-p filtra por prioridad. err muestra errores."],
+ ["Registros","Entra a la carpeta de registros tradicionales.","cd /var/log",["cd /log/var","cd ~/log","cd /etc/log"],"Los logs viven en /var/log."],
+ ["Registros","Muestra el registro de autenticaciones, con permisos de administrador.","sudo cat /var/log/auth.log",["cat /var/log/auth.log","sudo ls /var/log/auth.log","sudo journalctl auth.log"],"auth.log solo lo puede leer root, por eso lleva sudo."],
+ ["Registros","Busca la palabra Failed en auth.log, con permisos de administrador.","sudo grep \"Failed\" /var/log/auth.log",["sudo grep /var/log/auth.log \"Failed\"","sudo cat \"Failed\" /var/log/auth.log","sudo find \"Failed\" /var/log/auth.log"],"grep palabra archivo. Primero lo que buscas, luego dónde."],
+
+ ["Red","Ver tus interfaces de red y sus direcciones IP.","ip a",["ip route","ip net","ping ip"],"ip a (o ip addr) lista interfaces e IPs.",{alt:["ip addr","ip address"]}],
+ ["Red","Ver la tabla de rutas y la puerta de enlace predeterminada.","ip route",["ip a","route ip","ip gateway"],"La línea default via ... es tu gateway."],
+ ["Red","Haz ping a 8.8.8.8 enviando solo 3 paquetes.","ping -c 3 8.8.8.8",["ping -n 3 8.8.8.8","ping 3 8.8.8.8","ping -c 8.8.8.8 3"],"-c = count (cantidad de paquetes)."],
+ ["Red","Aplica los cambios que hiciste en la configuración de red (netplan).","sudo netplan apply",["sudo netplan start","sudo systemctl restart NetworkManager","sudo nmcli reload"],"Ubuntu Server usa netplan, no NetworkManager."],
+ ["Red","Abre con nano el archivo /etc/netplan/50-cloud-init.yaml, como administrador.","sudo nano /etc/netplan/50-cloud-init.yaml",["sudo cat /etc/netplan/50-cloud-init.yaml","nano netplan","sudo ls /etc/netplan/50-cloud-init.yaml"],"En nano: Ctrl+O guarda y Ctrl+X sale."],
+ ["Red","Deja el archivo /etc/netplan/50-cloud-init.yaml con permisos 600 (solo el dueño lo lee y escribe).","sudo chmod 600 /etc/netplan/50-cloud-init.yaml",["sudo chmod 777 /etc/netplan/50-cloud-init.yaml","sudo chown 600 /etc/netplan/50-cloud-init.yaml","sudo chmod +r /etc/netplan/50-cloud-init.yaml"],"chmod cambia permisos. chown cambia el dueño."],
+ ["Red","Apaga la máquina virtual desde la terminal.","sudo poweroff",["sudo stop","sudo exit","sudo kill all"],"poweroff apaga el equipo.",{alt:["sudo shutdown now","sudo shutdown -h now","sudo halt"]}]
+];
+
+/* ---------- Utilidades ---------- */
+function shuffle(a){ a = a.slice(); for (var i=a.length-1;i>0;i--){ var j=Math.floor(Math.random()*(i+1)); var t=a[i];a[i]=a[j];a[j]=t; } return a; }
+function esc(s){ return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;"); }
+function key(s, ci){
+  s = s.trim().replace(/^\$\s*/,"").replace(/[“”]/g,'"').replace(/[‘’]/g,"'")
+       .replace(/\s+/g," ").replace(/\s*(>>?)\s*/g," $1 ").replace(/\s*\|\s*/g," | ").replace(/\s*&$/,"&").replace(/["']/g,"").trim();
+  if (ci) s = s.toLowerCase().replace(/\s+/g,"");
+  return s;
+}
+function isRight(entry, typed){
+  var o = entry[5] || {}, ci = !!o.ci;
+  var list = [entry[2]].concat(o.alt || []);
+  var t = key(typed, ci);
+  return list.some(function(c){ return key(c, ci) === t; });
+}
+var TOPICS = []; DATA.forEach(function(e){ if (TOPICS.indexOf(e[0]) < 0) TOPICS.push(e[0]); });
+
+/* ---------- Sistema de Ranking ---------- */
+function getRanking(){
+  var raw = localStorage.getItem("linux_exam_ranking");
+  return raw ? JSON.parse(raw) : [];
+}
+
+function saveScore(name, score, total){
+  var list = getRanking();
+  list.push({ name: name || "Anónimo", score: score, total: total, date: Date.now() });
+  // Ordenar por aciertos (descendente)
+  list.sort(function(a,b){ return b.score - a.score; });
+  // Guardar solo los 10 mejores
+  list = list.slice(0, 10);
+  localStorage.setItem("linux_exam_ranking", JSON.stringify(list));
+}
+
+/* ---------- Estado ---------- */
+var S = { 
+  mode:"both", 
+  topics:{}, 
+  count:20, 
+  queue:[], 
+  i:0, 
+  results:[], 
+  answered:false, 
+  view:"start",
+  username: localStorage.getItem("linux_exam_username") || "PenguinRoot"
+};
+TOPICS.forEach(function(t){ S.topics[t] = true; });
+var app = document.getElementById("app");
+
+function chosenEntries(){ return DATA.filter(function(e){ return S.topics[e[0]]; }); }
+function poolSize(){
+  var n = chosenEntries().length;
+  return S.mode === "both" ? n * 2 : n;
+}
+
+/* ---------- Componente del Ranking ---------- */
+function renderRankingHtml(){
+  var ranking = getRanking();
+  if (!ranking.length) return '<p class="lead" style="font-size:0.9rem">No hay puntuaciones registradas aún.</p>';
+
+  var worstIndex = ranking.length > 1 ? ranking.length - 1 : -1;
+  var html = '<div class="leaderboard">';
+  
+  ranking.forEach(function(r, idx){
+    var isTop1 = idx === 0;
+    var isWorst = idx === worstIndex && ranking.length >= 3; // Resalta al peor solo si hay 3 o más
+    var classes = "rank-item" + (isTop1 ? " top-1" : isWorst ? " worst" : "");
+    var badge = isTop1 ? '<span class="badge">👑 1.º Lugar</span>' : isWorst ? '<span class="badge">💀 El Peor</span>' : '';
+    
+    html += '<div class="' + classes + '">' +
+      '<span class="rank-pos">#' + (idx + 1) + '</span>' +
+      '<span class="rank-name">' + esc(r.name) + ' ' + badge + '</span>' +
+      '<span class="rank-score">' + r.score + ' / ' + r.total + '</span>' +
+    '</div>';
+  });
+  
+  html += '</div>';
+  return html;
+}
+
+/* ---------- Pantalla de inicio ---------- */
+function renderStart(){
+  S.view = "start";
+  var pool = poolSize();
+  var chips = TOPICS.map(function(t){
+    return '<button class="chip" data-topic="'+esc(t)+'" aria-pressed="'+(S.topics[t]?"true":"false")+'">'+esc(t)+'</button>';
+  }).join("");
+  function mchip(v, txt){ return '<button class="chip" data-mode="'+v+'" aria-pressed="'+(S.mode===v?"true":"false")+'">'+txt+'</button>'; }
+  function cchip(v, txt){ return '<button class="chip" data-count="'+v+'" aria-pressed="'+(String(S.count)===String(v)?"true":"false")+'">'+txt+'</button>'; }
+  app.innerHTML =
+    '<header style="display:flex;flex-direction:column;gap:10px">' +
+    '<div class="label">Ubuntu Server · Gestión de archivos</div>' +
+    '<h1>Examen de comandos Linux</h1>' +
+    '<p class="lead">Compite con tus amigos. Responde las preguntas y escala al Top 1 del Ranking.</p>' +
+    '</header>' +
+    '<section class="card">' +
+      '<div><div class="label" style="margin-bottom:8px">Nombre de usuario</div>' +
+      '<div class="user-box"><input type="text" id="username-input" class="user-input" value="' + esc(S.username) + '" placeholder="Tu apodo/nombre" maxlength="18"></div></div>' +
+      '<div><div class="label" style="margin-bottom:8px">Tipo de pregunta</div><div class="row">' +
+        mchip("choose","Elegir el comando") + mchip("write","Escribir el comando") + mchip("both","Ambos") +
+      '</div></div>' +
+      '<div><div class="label" style="margin-bottom:8px">Temas</div><div class="row">' + chips + '</div></div>' +
+      '<div><div class="label" style="margin-bottom:8px">Cantidad</div><div class="row">' +
+        cchip(10,"10") + cchip(20,"20") + cchip(40,"40") + cchip("all","Todas (" + pool + ")") +
+      '</div></div>' +
+      '<div class="actions"><span class="count">' + chosenEntries().length + ' comandos elegidos</span>' +
+      '<button class="btn" id="go"'+(pool?'':' disabled')+'>Empezar</button></div>' +
+    '</section>' +
+    '<section class="card"><h2>🏆 Top 10 Ranking</h2>' + renderRankingHtml() + '</section>';
+}
+
+function buildQueue(){
+  var items = [];
+  chosenEntries().forEach(function(e){
+    if (S.mode !== "write") items.push({e:e, kind:"choose"});
+    if (S.mode !== "choose") items.push({e:e, kind:"write"});
+  });
+  items = shuffle(items);
+  if (S.count !== "all") items = items.slice(0, Number(S.count));
+  return items;
+}
+
+/* ---------- Pregunta ---------- */
+function startExam(queue){
+  S.queue = queue; S.i = 0; S.results = []; S.answered = false;
+  renderQ();
+}
+function renderQ(){
+  S.view = "q"; S.answered = false;
+  var it = S.queue[S.i], e = it.e, total = S.queue.length;
+  var pct = Math.round(S.i / total * 100);
+  var body;
+  if (it.kind === "choose"){
+    it.opts = it.opts || shuffle([e[2]].concat(e[3]));
+    body = '<div class="opts">' + it.opts.map(function(o, k){
+      return '<button class="opt" data-k="'+k+'">'+esc(o)+'</button>';
+    }).join("") + '</div>';
+  } else {
+    body = '<div class="term" id="term"><b>$</b><input id="ans" type="text" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" aria-label="Escribe el comando"></div>' +
+           '<div class="actions"><button class="btn ghost" id="hint" type="button">Pista</button><span class="hint" id="hintout"></span>' +
+           '<button class="btn" id="check" type="button">Comprobar</button></div>';
+  }
+  app.innerHTML =
+    '<div class="top"><span>' + esc(e[0]) + ' · ' + (it.kind==="choose"?"elige el comando":"escribe el comando") + '</span><span>' + (S.i+1) + ' de ' + total + '</span></div>' +
+    '<div class="bar" role="progressbar" aria-valuenow="'+pct+'" aria-valuemin="0" aria-valuemax="100"><i style="width:'+pct+'%"></i></div>' +
+    '<section class="card"><p class="scenario">' + esc(e[1]) + '</p>' + body + '<div id="fb"></div></section>';
+  var inp = document.getElementById("ans");
+  if (inp) inp.focus();
+}
+
+function finishQ(correct, given){
+  var it = S.queue[S.i];
+  S.answered = true;
+  S.results.push({e:it.e, kind:it.kind, ok:correct, given:given});
+  var last = S.i === S.queue.length - 1;
+  var fb = document.getElementById("fb");
+  fb.innerHTML =
+    '<div class="fb ' + (correct?"ok":"no") + '" role="status">' +
+      '<strong>' + (correct ? "Correcto." : "No es ese.") + '</strong>' +
+      (correct ? "" : '<div>Respuesta: <code>' + esc(it.e[2]) + '</code></div>') +
+      '<div>' + esc(it.e[4]) + '</div>' +
+    '</div>' +
+    '<div class="actions" style="margin-top:14px"><span></span><button class="btn" id="next">' + (last ? "Ver resultado" : "Siguiente") + '</button></div>';
+  var nb = document.getElementById("next"); nb.focus();
+}
+
+function answerChoose(k){
+  if (S.answered) return;
+  var it = S.queue[S.i];
+  var picked = it.opts[k], ok = picked === it.e[2];
+  Array.prototype.forEach.call(document.querySelectorAll(".opt"), function(b, idx){
+    b.disabled = true;
+    if (it.opts[idx] === it.e[2]) b.classList.add("right");
+    else if (idx === k) b.classList.add("wrong");
+  });
+  finishQ(ok, picked);
+}
+function answerWrite(){
+  if (S.answered) return;
+  var inp = document.getElementById("ans");
+  if (!inp.value.trim()) { inp.focus(); return; }
+  var it = S.queue[S.i], ok = isRight(it.e, inp.value);
+  inp.readOnly = true;
+  document.getElementById("term").classList.add(ok ? "right" : "wrong");
+  document.getElementById("check").disabled = true;
+  document.getElementById("hint").disabled = true;
+  finishQ(ok, inp.value);
+}
+
+/* ---------- Resultado ---------- */
+function renderResult(){
+  S.view = "end";
+  var total = S.results.length, good = S.results.filter(function(r){return r.ok;}).length;
+  var pct = total ? Math.round(good/total*100) : 0;
+  
+  // Guardar puntuación en el Ranking
+  saveScore(S.username, good, total);
+
+  var by = {};
+  S.results.forEach(function(r){ var t=r.e[0]; by[t] = by[t] || {g:0,n:0}; by[t].n++; if (r.ok) by[t].g++; });
+  var secs = Object.keys(by).map(function(t){
+    var p = Math.round(by[t].g/by[t].n*100);
+    return '<div class="sec"><span>'+esc(t)+'</span><div class="bar"><i style="width:'+p+'%"></i></div><span>'+by[t].g+'/'+by[t].n+'</span></div>';
+  }).join("");
+  
+  var seen = {}, fails = S.results.filter(function(r){
+    if (r.ok || seen[r.e[2]]) return false; seen[r.e[2]] = 1; return true;
+  });
+  
+  var msg = pct === 100 ? "¡Excelente! Eres un maestro de Linux." : pct >= 80 ? "Muy bien. Repasa los que fallaste." : pct >= 60 ? "Vas bien, falta afinar." : "Vuelve a intentarlo para salir del fondo del ranking.";
+  
+  var failHtml = fails.length ? '<section class="card"><h2>Para repasar (' + fails.length + ')</h2><div class="fails">' +
+    fails.map(function(r){
+      return '<div class="fail"><small>'+esc(r.e[1])+'</small><code>'+esc(r.e[2])+'</code><small>'+esc(r.e[4])+'</small></div>';
+    }).join("") + '</div></section>' : '';
+
+  app.innerHTML =
+    '<header style="display:flex;flex-direction:column;gap:10px"><div class="label">Resultado de ' + esc(S.username) + '</div>' +
+    '<div class="score">' + good + ' / ' + total + '</div><p class="lead">' + pct + '% de aciertos. ' + msg + '</p></header>' +
+    '<section class="card"><h2>🏆 Ranking Actualizado</h2>' + renderRankingHtml() + '</section>' +
+    '<section class="card"><h2>Por tema</h2>' + secs + '</section>' + failHtml +
+    '<div class="row">' +
+      (fails.length ? '<button class="btn" id="retry">Repetir solo los fallados</button>' : '') +
+      '<button class="btn ghost" id="again">Nuevo examen</button></div>';
+  window.scrollTo(0, 0);
+}
+
+/* ---------- Eventos ---------- */
+app.addEventListener("input", function(ev){
+  if (ev.target.id === "username-input"){
+    S.username = ev.target.value.trim() || "Anónimo";
+    localStorage.setItem("linux_exam_username", S.username);
+  }
+});
+
+app.addEventListener("click", function(ev){
+  var t = ev.target.closest("button"); if (!t) return;
+  if (t.dataset.topic){ S.topics[t.dataset.topic] = !S.topics[t.dataset.topic]; renderStart(); return; }
+  if (t.dataset.mode){ S.mode = t.dataset.mode; renderStart(); return; }
+  if (t.dataset.count){ S.count = t.dataset.count === "all" ? "all" : Number(t.dataset.count); renderStart(); return; }
+  if (t.id === "go"){ startExam(buildQueue()); return; }
+  if (t.classList.contains("opt")){ answerChoose(Number(t.dataset.k)); return; }
+  if (t.id === "check"){ answerWrite(); return; }
+  if (t.id === "hint"){
+    var it = S.queue[S.i], parts = it.e[2].split(" ");
+    document.getElementById("hintout").textContent = parts[0] + (parts.length > 1 ? " …  (" + parts.length + " partes)" : "");
+    document.getElementById("ans").focus(); return;
+  }
+  if (t.id === "next"){ if (S.i < S.queue.length - 1){ S.i++; renderQ(); } else renderResult(); return; }
+  if (t.id === "retry"){
+    var seen = {}, redo = [];
+    S.results.forEach(function(r){ if (!r.ok && !seen[r.e[2]+r.kind]){ seen[r.e[2]+r.kind]=1; redo.push({e:r.e, kind:r.kind}); } });
+    startExam(shuffle(redo)); return;
+  }
+  if (t.id === "again"){ renderStart(); window.scrollTo(0,0); return; }
+});
+
+app.addEventListener("keydown", function(ev){
+  if (ev.key === "Enter" && ev.target.id === "ans"){ ev.preventDefault(); answerWrite(); }
+  else if (ev.key === "Enter" && S.view === "q" && S.answered && ev.target.id !== "next"){
+    var nb = document.getElementById("next"); if (nb) nb.click();
+  }
+});
+
+renderStart();
+</script>
+</body>
+</html>
